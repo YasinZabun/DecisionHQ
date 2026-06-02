@@ -1,6 +1,11 @@
 system_settings:
   max_debate_rounds: 3
 
+# provider secenekleri: "azure" | "anthropic" | "gemini"
+# azure model ornekleri    : gpt-4o, gpt-4o-mini
+# anthropic model ornekleri: claude-opus-4-8, claude-sonnet-4-6, claude-haiku-4-5-20251001
+# gemini model ornekleri   : gemini-2.0-flash, gemini-1.5-pro
+
 moderator:
   provider: "azure"
   deployment_name: "gpt-4o-mini"
