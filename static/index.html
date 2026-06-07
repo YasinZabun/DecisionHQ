@@ -68,6 +68,13 @@
       cursor: pointer; font-size: 12px; color: var(--tx); transition: background .15s;
     }
     .theme-btn:hover { background: var(--bg4); }
+    .logout-btn {
+      width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+      background: transparent; border: 1px solid var(--bd); border-radius: 6px;
+      cursor: pointer; font-size: 12px; color: var(--tx3); transition: all .15s;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .logout-btn:hover { background: rgba(192,72,72,.1); border-color: rgba(192,72,72,.3); color: #D46060; }
 
     /* input section */
     .sb-input { padding: 14px 14px 12px; border-bottom: 1px solid var(--bd); }
@@ -312,6 +319,7 @@
       <div class="sb-logo">⚡</div>
       <span class="sb-title">Karar Karargahı</span>
       <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+      <a class="logout-btn" href="/logout" title="Çıkış Yap">↩</a>
     </div>
 
     <!-- input -->

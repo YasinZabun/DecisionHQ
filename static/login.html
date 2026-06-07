@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Karar Karargahı — Giriş</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #D97757; --accent-dim: rgba(217,119,87,.12); --accent-bd: rgba(217,119,87,.3);
+      --font: 'Inter', -apple-system, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #171615; --bg2: #1C1B1A; --bg3: #262524; --bg4: #2F2E2C;
+      --bd: rgba(255,255,255,.07); --bd2: rgba(255,255,255,.13);
+      --tx: #EDE9E3; --tx2: #B8B2AA; --tx3: #6E6A66;
+      --err-bg: rgba(192,72,72,.08); --err-bd: rgba(192,72,72,.3); --err-tx: #D46060;
+    }
+    [data-theme="light"] {
+      --bg: #F5F3EF; --bg2: #FFFFFF; --bg3: #F0EDE8; --bg4: #E6E2DC;
+      --bd: rgba(0,0,0,.07); --bd2: rgba(0,0,0,.13);
+      --tx: #1A1816; --tx2: #4A4844; --tx3: #8A8480;
+      --err-bg: rgba(192,72,72,.06); --err-bd: rgba(192,72,72,.25); --err-tx: #C04848;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font); background: var(--bg); color: var(--tx);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%; max-width: 380px;
+      background: var(--bg2); border: 1px solid var(--bd2);
+      border-radius: 16px; padding: 36px 32px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.25);
+    }
+
+    .logo-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
+    }
+    .logo {
+      width: 36px; height: 36px; background: var(--accent); border-radius: 9px;
+      display: flex; align-items: center; justify-content: center; font-size: 17px;
+    }
+    .logo-text { font-size: 14px; font-weight: 700; letter-spacing: .3px; }
+
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .sub { font-size: 13px; color: var(--tx3); margin-bottom: 24px; }
+
+    .err-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--err-bg); border: 1px solid var(--err-bd);
+      border-radius: 8px; padding: 10px 13px;
+      font-size: 13px; color: var(--err-tx); margin-bottom: 18px;
+    }
+
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--tx3); margin-bottom: 6px; }
+    input[type="text"], input[type="password"] {
+      width: 100%; background: var(--bg3); border: 1px solid var(--bd2);
+      border-radius: 8px; padding: 10px 13px; font-size: 14px; color: var(--tx);
+      font-family: var(--font); outline: none; transition: border-color .2s;
+    }
+    input:focus { border-color: var(--accent-bd); background: var(--bg); }
+    input::placeholder { color: var(--tx3); }
+
+    .submit-btn {
+      width: 100%; margin-top: 20px;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 9px; padding: 11px; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: var(--font); transition: background .15s, transform .1s;
+      letter-spacing: .2px;
+    }
+    .submit-btn:hover { background: #C4643E; }
+    .submit-btn:active { transform: scale(.98); }
+
+    .theme-toggle {
+      position: fixed; top: 16px; right: 16px;
+      width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+      background: var(--bg2); border: 1px solid var(--bd); border-radius: 7px;
+      cursor: pointer; font-size: 14px; color: var(--tx); transition: background .15s;
+    }
+    .theme-toggle:hover { background: var(--bg3); }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+<div class="card">
+  <div class="logo-row">
+    <div class="logo">⚡</div>
+    <span class="logo-text">Karar Karargahı</span>
+  </div>
+
+  <h1>Giriş Yap</h1>
+  <p class="sub">Devam etmek için oturum açın.</p>
+
+  <div id="err-box" class="err-box" style="display:none">
+    ⚠️ Kullanıcı adı veya şifre hatalı.
+  </div>
+
+  <form method="post" action="/login" id="form">
+    <div class="field">
+      <label>Kullanıcı Adı</label>
+      <input type="text" name="username" placeholder="kullanıcı adı" autocomplete="username" required autofocus>
+    </div>
+    <div class="field">
+      <label>Şifre</label>
+      <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="submit-btn">Giriş Yap</button>
+  </form>
+</div>
+
+<script>
+  (function() {
+    const t = localStorage.getItem('dhq-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelector('.theme-toggle').textContent = t === 'dark' ? '🌙' : '☀️';
+    if (new URLSearchParams(location.search).get('error')) {
+      document.getElementById('err-box').style.display = 'flex';
+    }
+  })();
+
+  function toggleTheme() {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    document.querySelector('.theme-toggle').textContent = next === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('dhq-theme', next);
+  }
+</script>
+</body>
+</html>
