@@ -14,3 +14,7 @@ venv/
 # IDE
 .vscode/
 .idea/
+
+# Logs
+api_requests.jsonl
+*.jsonl

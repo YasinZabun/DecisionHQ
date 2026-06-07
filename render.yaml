@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: karar-karargahi
+    runtime: docker
+    plan: free
+    envVars:
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_API_VERSION
+        sync: false

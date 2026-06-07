@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Karar Karargahı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --accent:#D97757; --accent-dim:rgba(217,119,87,.12); --accent-bd:rgba(217,119,87,.28);
+      --ok:#3E9B6F; --warn:#C4892A; --err:#C04848;
+      --font:'Inter',-apple-system,sans-serif;
+      --c-macro:#4B8FF0; --c-wealth:#E8A838; --c-grit:#E05C5C;
+      --c-hacker:#38C97A; --c-exec:#8B9BAE; --c-cynic:#9B7BE8;
+      --c-legal:#B0BCC8; --c-human:#F0864C; --c-realist:#E8B86D; --c-philo:#52C8C0;
+    }
+    [data-theme="dark"] {
+      --bg:#171615; --sb:#1C1B1A; --bg2:#212020; --bg3:#282726; --bg4:#302F2D;
+      --bd:rgba(255,255,255,.07); --bd2:rgba(255,255,255,.12);
+      --tx:#EDE9E3; --tx2:#B8B2AA; --tx3:#6E6A66;
+    }
+    [data-theme="light"] {
+      --bg:#F5F3EF; --sb:#FAFAF8; --bg2:#FFFFFF; --bg3:#F0EDE8; --bg4:#E6E2DC;
+      --bd:rgba(0,0,0,.07); --bd2:rgba(0,0,0,.12);
+      --tx:#1A1816; --tx2:#4A4844; --tx3:#8A8480;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--tx); overflow: hidden; height: 100vh; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
+    .hidden { display: none !important; }
+
+    /* ── APP SHELL ── */
+    .app { display: flex; height: 100vh; }
+
+    /* ══════════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════════ */
+    .sidebar {
+      width: 248px;
+      flex-shrink: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--sb);
+      border-right: 1px solid var(--bd);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* brand row */
+    .sb-brand {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--bd);
+    }
+    .sb-logo {
+      width: 26px; height: 26px; background: var(--accent); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;
+    }
+    .sb-title { font-size: 12px; font-weight: 700; letter-spacing: .3px; flex: 1; }
+    .theme-btn {
+      width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+      background: var(--bg3); border: 1px solid var(--bd); border-radius: 6px;
+      cursor: pointer; font-size: 12px; color: var(--tx); transition: background .15s;
+    }
+    .theme-btn:hover { background: var(--bg4); }
+
+    /* input section */
+    .sb-input { padding: 14px 14px 12px; border-bottom: 1px solid var(--bd); }
+    .sb-textarea-wrap {
+      background: var(--bg2); border: 1px solid var(--bd2); border-radius: 10px;
+      padding: 10px 12px; transition: border-color .2s; margin-bottom: 10px;
+    }
+    .sb-textarea-wrap:focus-within { border-color: var(--accent-bd); }
+    textarea {
+      width: 100%; background: transparent; border: none; outline: none;
+      color: var(--tx); font-size: 13px; line-height: 1.65; resize: none;
+      min-height: 80px; font-family: var(--font);
+    }
+    textarea::placeholder { color: var(--tx3); }
+    .sb-btn-row { display: flex; align-items: center; justify-content: space-between; }
+    .sb-hint { font-size: 10px; color: var(--tx3); }
+    kbd { background: var(--bg3); border: 1px solid var(--bd2); border-radius: 3px; padding: 1px 5px; font-size: 9px; font-family: monospace; color: var(--tx3); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent); color: #fff; border: none; border-radius: 7px;
+      padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: var(--font); transition: background .15s, transform .1s;
+    }
+    .btn:hover { background: #C4643E; }
+    .btn:active { transform: scale(.97); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    /* pipeline section */
+    .sb-pipe { padding: 12px 14px; border-bottom: 1px solid var(--bd); }
+    .sb-sec-lbl { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--tx3); margin-bottom: 10px; }
+    .pipe-steps { display: flex; flex-direction: column; gap: 4px; }
+    .psi {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 6px; border-radius: 6px; transition: background .2s;
+    }
+    .psi.active { background: var(--accent-dim); }
+    .psi-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      border: 1.5px solid var(--bd2); background: transparent;
+      flex-shrink: 0; transition: all .3s;
+    }
+    .psi.active .psi-dot { background: var(--accent); border-color: var(--accent); animation: pulse-dot 1.4s infinite; }
+    .psi.done .psi-dot { background: var(--ok); border-color: var(--ok); }
+    .psi-lbl { font-size: 11px; color: var(--tx3); transition: color .2s; }
+    .psi.active .psi-lbl { color: var(--accent); font-weight: 600; }
+    .psi.done .psi-lbl { color: var(--tx3); }
+    .pipe-msg { font-size: 11px; color: var(--tx3); margin-top: 8px; line-height: 1.5; min-height: 16px; }
+
+    /* status chip */
+    .sb-status-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .sdot { width: 6px; height: 6px; border-radius: 50%; background: var(--tx3); flex-shrink: 0; transition: all .3s; }
+    .sdot.run { background: var(--accent); animation: pulse-dot 1.4s infinite; }
+    .sdot.done { background: var(--ok); }
+    .stext { font-size: 11px; color: var(--tx3); }
+
+    /* agent list section */
+    .sb-agents { flex: 1; padding: 0; }
+    .sb-agents-hd {
+      padding: 10px 14px 6px;
+      font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--tx3);
+      position: sticky; top: 0; background: var(--sb); z-index: 5; border-bottom: 1px solid var(--bd);
+    }
+    .agent-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 14px; cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: background .12s, border-color .15s;
+      position: relative;
+    }
+    .agent-item:hover { background: var(--bg3); }
+    .agent-item.active { background: var(--bg3); border-left-color: var(--ai-color, var(--accent)); }
+    .agent-item.pulsing { animation: item-breathe 1.6s infinite; }
+    .ai-icon { font-size: 14px; flex-shrink: 0; }
+    .ai-info { flex: 1; min-width: 0; }
+    .ai-name { font-size: 11px; font-weight: 600; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ai-sub { font-size: 10px; color: var(--tx3); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bd2); flex-shrink: 0; transition: all .3s; }
+    .ai-dot.run { background: var(--accent); animation: pulse-dot 1.4s infinite; }
+    .ai-dot.done { background: var(--ok); }
+
+    /* ══════════════════════════════════════════════
+       MAIN
+    ══════════════════════════════════════════════ */
+    .main {
+      flex: 1; height: 100vh; overflow-y: auto;
+      display: flex; flex-direction: column;
+    }
+
+    /* welcome */
+    .welcome {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 32px; text-align: center;
+    }
+    .welcome-icon { font-size: 40px; margin-bottom: 16px; opacity: .4; }
+    .welcome-title { font-size: 22px; font-weight: 700; color: var(--tx2); margin-bottom: 10px; }
+    .welcome-sub { font-size: 14px; color: var(--tx3); max-width: 360px; line-height: 1.6; }
+
+    /* debate header — sticky inside main */
+    .debate-hd {
+      position: sticky; top: 0; z-index: 20;
+      background: var(--bg); border-bottom: 1px solid var(--bd);
+      padding: 14px 32px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .dh-icon { font-size: 22px; }
+    .dh-info { flex: 1; }
+    .dh-name { font-size: 15px; font-weight: 700; }
+    .dh-role { font-size: 11px; color: var(--tx3); margin-top: 2px; }
+    .dh-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 10px; border: 1px solid transparent;
+    }
+    .dh-badge.wait { background: var(--bg3); color: var(--tx3); border-color: var(--bd2); }
+    .dh-badge.run { background: var(--accent-dim); color: var(--accent); border-color: var(--accent-bd); animation: blink 1.2s infinite; }
+    .dh-badge.done { background: rgba(62,155,111,.1); color: var(--ok); border-color: rgba(62,155,111,.3); }
+
+    /* timeline */
+    .debate-tl { padding: 24px 32px 0; display: flex; flex-direction: column; gap: 12px; }
+
+    /* round block */
+    .tl-round {
+      background: var(--bg2); border: 1px solid var(--bd);
+      border-top: 2px solid var(--ai-color, var(--accent));
+      border-radius: 10px; padding: 16px 20px;
+      animation: fadein .3s ease-out;
+    }
+    .tl-round-lbl {
+      font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--ai-color, var(--accent)); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tl-round-lbl::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: var(--ai-color, var(--accent)); flex-shrink: 0;
+    }
+    .tl-round-body { font-size: 14px; line-height: 1.78; color: var(--tx2); white-space: pre-wrap; }
+
+    /* challenge block */
+    .tl-chal {
+      border-left: 2px solid var(--accent); padding: 10px 16px;
+      background: var(--accent-dim); border-radius: 0 8px 8px 0;
+      animation: fadein .3s ease-out;
+    }
+    .tl-chal-lbl { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    .tl-chal-body { font-size: 13px; line-height: 1.65; color: var(--tx2); font-style: italic; }
+
+    /* skeleton */
+    .skel-wrap { padding: 24px 32px; display: flex; flex-direction: column; gap: 8px; }
+    .skel { height: 11px; border-radius: 4px; background: linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%); background-size: 200% 100%; animation: shimmer 1.6s infinite; }
+
+    /* debate empty */
+    .debate-empty {
+      padding: 60px 32px; display: flex; flex-direction: column;
+      align-items: center; text-align: center;
+    }
+    .debate-empty-icon { font-size: 28px; margin-bottom: 10px; opacity: .5; }
+    .debate-empty-txt { font-size: 13px; color: var(--tx3); }
+
+    /* ── DIVIDER ── */
+    .main-divider { height: 1px; background: var(--bd); margin: 32px 32px; }
+
+    /* ── SECTION HEADER ── */
+    .main-sec-hd {
+      padding: 0 32px; margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .main-sec-lbl { font-size: 9px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--tx3); }
+
+    /* ── METRICS ── */
+    .metrics-wrap { padding: 0 32px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    @media (max-width: 860px) { .metrics-grid { grid-template-columns: repeat(2,1fr); } }
+    .mc {
+      background: var(--bg2); border: 1px solid var(--bd); border-radius: 10px; padding: 16px 18px;
+    }
+    .mc-lbl { font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--tx3); margin-bottom: 8px; }
+    .mc-val { font-size: 26px; font-weight: 800; line-height: 1; margin-bottom: 10px; font-variant-numeric: tabular-nums; }
+    .mc-bar { height: 3px; background: var(--bg4); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+    .mc-fill { height: 100%; border-radius: 2px; width: 0; transition: width 1.1s cubic-bezier(.4,0,.2,1); }
+    .mc-sub { font-size: 10px; color: var(--tx3); }
+
+    /* ── REPORT ── */
+    .report-tags-wrap { padding: 0 32px; display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+    .tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; letter-spacing: .7px; padding: 3px 9px; border-radius: 20px; border: 1px solid transparent; text-transform: uppercase; white-space: nowrap; }
+    .t-bl { background: rgba(75,143,240,.1); color:#5B9EF5; border-color:rgba(75,143,240,.25); }
+    .t-gr { background: rgba(62,155,111,.1); color:#4AAE82; border-color:rgba(62,155,111,.25); }
+    .t-ye { background: rgba(196,137,42,.1); color:#D4993A; border-color:rgba(196,137,42,.25); }
+    .t-re { background: rgba(192,72,72,.1); color:#D46060; border-color:rgba(192,72,72,.25); }
+    .t-mu { background: var(--bg3); color: var(--tx3); border-color: var(--bd2); }
+
+    .report-body-wrap { padding: 0 32px 60px; }
+    .report-body {
+      background: var(--bg2); border: 1px solid var(--bd); border-radius: 14px;
+      padding: 36px 40px; font-size: 15.5px; line-height: 1.88; color: var(--tx2);
+    }
+    .report-body h1,.report-body h2,.report-body h3 { color: var(--tx); font-weight: 700; line-height: 1.3; }
+    .report-body h1 { font-size: 21px; margin: 30px 0 13px; }
+    .report-body h2 { font-size: 17px; margin: 26px 0 11px; }
+    .report-body h3 { font-size: 14px; margin: 20px 0 9px; color: var(--accent); font-weight: 600; }
+    .report-body p { margin-bottom: 16px; }
+    .report-body ul, .report-body ol { margin: 14px 0; padding-left: 22px; }
+    .report-body li { margin-bottom: 8px; }
+    .report-body strong { color: var(--tx); font-weight: 600; }
+    .report-body blockquote { border-left: 2px solid var(--accent); padding: 11px 16px; margin: 20px 0; background: var(--accent-dim); border-radius: 0 8px 8px 0; font-style: italic; color: var(--tx2); }
+    .report-body code { background: var(--bg3); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono','Fira Code',monospace; color: var(--accent); border: 1px solid var(--bd); }
+    .report-body hr { border: none; border-top: 1px solid var(--bd); margin: 24px 0; }
+    .report-body table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    .report-body th { background: var(--bg3); padding: 8px 12px; text-align: left; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--tx3); font-weight: 600; border: 1px solid var(--bd); }
+    .report-body td { padding: 9px 12px; border: 1px solid var(--bd); }
+    .report-body tr:hover td { background: var(--bg3); }
+    @media (max-width: 640px) { .report-body { padding: 20px 16px; } }
+
+    /* ── ERROR ── */
+    .err-wrap { margin: 24px 32px; background: rgba(192,72,72,.07); border: 1px solid rgba(192,72,72,.25); border-radius: 10px; padding: 14px 18px; color: #D46060; font-size: 14px; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 700px) {
+      body { overflow: auto; }
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; overflow: visible; }
+      .main { height: auto; overflow: visible; }
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse-dot { 0%,100%{ box-shadow: 0 0 0 2px rgba(217,119,87,.3); } 50%{ box-shadow: 0 0 0 4px rgba(217,119,87,.08); } }
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+    @keyframes shimmer { 0%{ background-position: -200% 0; } 100%{ background-position: 200% 0; } }
+    @keyframes fadein { from{ opacity:0; transform:translateY(5px); } to{ opacity:1; transform:translateY(0); } }
+    @keyframes item-breathe { 0%,100%{ background:transparent; } 50%{ background:var(--accent-dim); } }
+    .fadein { animation: fadein .3s ease-out; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
+  <aside class="sidebar">
+
+    <!-- brand -->
+    <div class="sb-brand">
+      <div class="sb-logo">⚡</div>
+      <span class="sb-title">Karar Karargahı</span>
+      <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+    </div>
+
+    <!-- input -->
+    <div class="sb-input">
+      <div class="sb-textarea-wrap">
+        <textarea id="q" rows="4" placeholder="Kararını veya sorunuzu yazın…"></textarea>
+      </div>
+      <div class="sb-btn-row">
+        <span class="sb-hint"><kbd>Ctrl+Enter</kbd></span>
+        <button class="btn" id="sbtn" onclick="go()">Konseyi Topla</button>
+      </div>
+    </div>
+
+    <!-- pipeline -->
+    <div class="sb-pipe hidden" id="sb-pipe">
+      <div class="sb-status-row">
+        <div class="sdot" id="sdot"></div>
+        <span class="stext" id="stext">Hazır</span>
+      </div>
+      <div class="pipe-steps">
+        <div class="psi" id="psi-init">   <div class="psi-dot"></div><span class="psi-lbl">Hazırlık</span></div>
+        <div class="psi" id="psi-ego">    <div class="psi-dot"></div><span class="psi-lbl">Ön Analiz</span></div>
+        <div class="psi" id="psi-d1">     <div class="psi-dot"></div><span class="psi-lbl">Münazara — Tur 1</span></div>
+        <div class="psi" id="psi-d2">     <div class="psi-dot"></div><span class="psi-lbl">Münazara — Tur 2</span></div>
+        <div class="psi" id="psi-d3">     <div class="psi-dot"></div><span class="psi-lbl">Münazara — Tur 3</span></div>
+        <div class="psi" id="psi-syn">    <div class="psi-dot"></div><span class="psi-lbl">Sentez</span></div>
+      </div>
+      <div class="pipe-msg" id="pmsg"></div>
+    </div>
+
+    <!-- agent list -->
+    <div class="sb-agents hidden" id="sb-agents">
+      <div class="sb-agents-hd">Konsey</div>
+      <div id="agent-list"></div>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════ MAIN ══════════════════ -->
+  <main class="main" id="main">
+
+    <!-- welcome -->
+    <div class="welcome" id="s-welcome">
+      <div class="welcome-icon">⚡</div>
+      <div class="welcome-title">10 zihin, bir karar</div>
+      <div class="welcome-sub">Kararını sol taraftaki alana yaz. Konsey toplanır, 3 turda tartışır, Başkan sentezler.</div>
+    </div>
+
+    <!-- debate header (sticky) -->
+    <div class="debate-hd hidden" id="s-debate-hd">
+      <span class="dh-icon" id="dh-icon">—</span>
+      <div class="dh-info">
+        <div class="dh-name" id="dh-name">—</div>
+        <div class="dh-role" id="dh-role">—</div>
+      </div>
+      <span class="dh-badge wait" id="dh-badge">Bekliyor</span>
+    </div>
+
+    <!-- debate timeline -->
+    <div id="s-debate-body"></div>
+
+    <!-- report -->
+    <div id="s-report" class="hidden fadein">
+      <div class="main-divider"></div>
+      <div class="main-sec-hd"><span class="main-sec-lbl">Analiz Metrikleri</span></div>
+      <div class="metrics-wrap"><div class="metrics-grid" id="metrics-grid"></div></div>
+      <div class="main-divider"></div>
+      <div class="main-sec-hd">
+        <span class="main-sec-lbl">Karar Karargahı Raporu</span>
+        <div class="report-tags-wrap" id="report-tags" style="padding:0;margin:0"></div>
+      </div>
+      <div class="report-body-wrap"><div class="report-body" id="report-body"></div></div>
+    </div>
+
+    <!-- error -->
+    <div id="s-err" class="hidden">
+      <div class="err-wrap"><strong>Hata:</strong> <span id="errmsg"></span></div>
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+// ── AGENT CONFIG ───────────────────────────────────────────────
+const AGENTS = {
+  macro_predictor:    { name:'Macro Predictor',   role:'Makroekonomist',          icon:'🌐', color:'var(--c-macro)'   },
+  wealth_alchemist:   { name:'Wealth Alchemist',   role:'Finansal Analist',        icon:'⚗️',  color:'var(--c-wealth)'  },
+  grit_craft:         { name:'Grit & Craft',       role:'Emek & Ustalık',          icon:'🔨', color:'var(--c-grit)'    },
+  the_hacker:         { name:'The Hacker',         role:'Lateral Düşünür',         icon:'💻', color:'var(--c-hacker)'  },
+  the_executioner:    { name:'The Executioner',    role:'Pragmatik Stratejist',    icon:'⚔️', color:'var(--c-exec)'    },
+  the_cynic:          { name:'The Cynic',          role:'Kötümser Dedektif',      icon:'🎭', color:'var(--c-cynic)'   },
+  legal_ethics_guard: { name:'Legal & Ethics',     role:'Hukuk & Etik',            icon:'⚖️',  color:'var(--c-legal)'   },
+  human_factor:       { name:'Human Factor',       role:'İnsan Boyutu',            icon:'🧬', color:'var(--c-human)'   },
+  the_realist:        { name:'The Realist',        role:'Yapısal Gerçekçi',        icon:'🏗️', color:'var(--c-realist)' },
+  the_philosopher:    { name:'The Philosopher',    role:'Kavramsal Sorgulayıcı',   icon:'🔭', color:'var(--c-philo)'   },
+};
+
+const METRICS_META = {
+  overall_risk_score:         { label:'Genel Risk',         invert:true,  max:10 },
+  implementation_difficulty:  { label:'Uygulama Zorluğu',   invert:true,  max:10 },
+  time_to_first_result_weeks: { label:'İlk Sonuç (hf)',     invert:false, max:52 },
+  consensus_strength:         { label:'Konsensüs Gücü',     invert:false, max:10 },
+  burnout_risk_score:         { label:'Burnout Riski',       invert:true,  max:10 },
+  financial_exposure_score:   { label:'Finansal Maruziyet', invert:true,  max:10 },
+};
+
+// ── STATE ─────────────────────────────────────────────────────
+const agentHistory = {};   // key → [{type:'round'|'challenge', round, content}]
+const agentStatus  = {};   // key → 'wait'|'run'|'done'
+let selectedAgent  = null;
+let currentRound   = 0;
+
+// ── THEME ─────────────────────────────────────────────────────
+(function() {
+  const t = localStorage.getItem('dhq-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  document.querySelector('.theme-btn').textContent = t === 'dark' ? '🌙' : '☀️';
+})();
+function toggleTheme() {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.querySelector('.theme-btn').textContent = next === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('dhq-theme', next);
+}
+
+// ── DOM HELPERS ───────────────────────────────────────────────
+const $   = id => document.getElementById(id);
+const show = id => $(id) && $(id).classList.remove('hidden');
+const hide = id => $(id) && $(id).classList.add('hidden');
+function setStatus(txt, state) {
+  $('stext').textContent = txt;
+  $('sdot').className = 'sdot' + (state==='run' ? ' run' : state==='done' ? ' done' : '');
+}
+
+// ── PIPELINE ─────────────────────────────────────────────────
+const STAGES   = ['init','ego','d1','d2','d3','syn'];
+const PSI_IDS  = {init:'psi-init', ego:'psi-ego', d1:'psi-d1', d2:'psi-d2', d3:'psi-d3', syn:'psi-syn'};
+const STAGE_MAP = {
+  init:'init', ego_check:'ego',
+  debate_1:'d1', debate_2:'d2', debate_3:'d3',
+  synthesis:'syn'
+};
+
+function activateStage(key) {
+  const sk = STAGE_MAP[key] || key;
+  const idx = STAGES.indexOf(sk);
+  STAGES.forEach((s, i) => {
+    const el = $(PSI_IDS[s]); if (!el) return;
+    el.classList.remove('active','done');
+    if (i < idx) el.classList.add('done');
+    else if (i === idx) el.classList.add('active');
+  });
+}
+function allStagesDone() {
+  STAGES.forEach(s => { const el=$(PSI_IDS[s]); if(el){el.classList.remove('active');el.classList.add('done');} });
+}
+
+// ── COUNCIL BUILD ─────────────────────────────────────────────
+function buildCouncil() {
+  const list = $('agent-list');
+  list.innerHTML = '';
+  for (const [key, a] of Object.entries(AGENTS)) {
+    agentHistory[key] = [];
+    agentStatus[key]  = 'wait';
+    const el = document.createElement('div');
+    el.className = 'agent-item'; el.id = 'ai-' + key;
+    el.style.setProperty('--ai-color', a.color);
+    el.onclick = () => selectAgent(key);
+    el.innerHTML = `
+      <span class="ai-icon">${a.icon}</span>
+      <div class="ai-info">
+        <div class="ai-name">${a.name}</div>
+        <div class="ai-sub" id="aisub-${key}">Bekliyor</div>
+      </div>
+      <div class="ai-dot" id="aidot-${key}"></div>`;
+    list.appendChild(el);
+  }
+  show('sb-agents');
+  selectAgent(Object.keys(AGENTS)[0]);
+}
+
+// ── AGENT SELECTION ───────────────────────────────────────────
+function selectAgent(key) {
+  selectedAgent = key;
+  document.querySelectorAll('.agent-item').forEach(el => el.classList.remove('active'));
+  const item = $('ai-' + key); if (item) item.classList.add('active');
+  renderDebatePanel(key);
+}
+
+function renderDebatePanel(key) {
+  const a = AGENTS[key];
+  const state = agentStatus[key] || 'wait';
+  const items = agentHistory[key] || [];
+
+  // header
+  show('s-debate-hd');
+  $('dh-icon').textContent = a.icon;
+  $('dh-name').textContent = a.name;
+  $('dh-role').textContent = a.role;
+  const badge = $('dh-badge');
+  badge.className = 'dh-badge ' + state;
+  badge.textContent = state === 'run' ? 'Analiz ediyor…' : state === 'done' ? `Tur ${currentRound} ✓` : 'Bekliyor';
+
+  // body
+  const body = $('s-debate-body');
+  body.innerHTML = '';
+
+  if (items.length === 0 && state === 'wait') {
+    body.innerHTML = `<div class="debate-empty"><div class="debate-empty-icon">${a.icon}</div><div class="debate-empty-txt">Münazara başladığında bu üyenin yanıtları burada görünecek.</div></div>`;
+  } else if (items.length === 0 && state === 'run') {
+    body.innerHTML = `<div class="skel-wrap"><div class="skel" style="width:82%"></div><div class="skel" style="width:67%"></div><div class="skel" style="width:74%"></div><div class="skel" style="width:58%"></div><div class="skel" style="width:76%"></div></div>`;
+  } else {
+    const tl = document.createElement('div');
+    tl.className = 'debate-tl';
+    for (const item of items) tl.appendChild(makeTlNode(item, a.color));
+    if (state === 'run') {
+      const sk = document.createElement('div');
+      sk.className = 'skel-wrap';
+      sk.innerHTML = `<div class="skel" style="width:80%"></div><div class="skel" style="width:62%"></div><div class="skel" style="width:71%"></div>`;
+      tl.appendChild(sk);
+    }
+    body.appendChild(tl);
+  }
+}
+
+function makeTlNode(item, color) {
+  if (item.type === 'round') {
+    const el = document.createElement('div');
+    el.className = 'tl-round';
+    el.style.setProperty('--ai-color', color);
+    el.innerHTML = `<div class="tl-round-lbl">Tur ${item.round}</div><div class="tl-round-body">${esc(item.content)}</div>`;
+    return el;
+  } else {
+    const el = document.createElement('div');
+    el.className = 'tl-chal';
+    el.innerHTML = `<div class="tl-chal-lbl">Başkan Sorusu — Tur ${item.round + 1} öncesi</div><div class="tl-chal-body">${esc(item.content)}</div>`;
+    return el;
+  }
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── AGENT STATE UPDATES ───────────────────────────────────────
+function agentRun(key) {
+  agentStatus[key] = 'run';
+  const dot = $('aidot-' + key); if (dot) dot.className = 'ai-dot run';
+  const sub = $('aisub-' + key); if (sub) sub.textContent = 'Analiz ediyor…';
+  const item = $('ai-' + key); if (item) item.classList.add('pulsing');
+  if (selectedAgent === key) renderDebatePanel(key);
+}
+
+function agentDone(key, round, content) {
+  agentStatus[key] = 'done';
+  agentHistory[key].push({ type:'round', round, content });
+  const dot = $('aidot-' + key); if (dot) dot.className = 'ai-dot done';
+  const sub = $('aisub-' + key); if (sub) sub.textContent = `Tur ${round} ✓`;
+  const item = $('ai-' + key); if (item) item.classList.remove('pulsing');
+  if (selectedAgent === key) renderDebatePanel(key);
+}
+
+function agentChallenge(key, round, content) {
+  agentHistory[key].push({ type:'challenge', round, content });
+  if (selectedAgent === key) renderDebatePanel(key);
+}
+
+// ── METRICS ──────────────────────────────────────────────────
+function metricColor(val, invert) {
+  const s = invert ? 10 - val : val;
+  return s >= 7 ? 'var(--ok)' : s >= 4 ? 'var(--warn)' : 'var(--err)';
+}
+function renderMetrics(metrics) {
+  if (!metrics) return;
+  const grid = $('metrics-grid'); grid.innerHTML = '';
+  for (const [key, raw] of Object.entries(metrics)) {
+    const meta = METRICS_META[key]; if (!meta) continue;
+    const val  = parseFloat(raw) || 0;
+    const pct  = Math.min((val / meta.max) * 100, 100);
+    const col  = key === 'time_to_first_result_weeks' ? 'var(--c-macro)' : metricColor(val, meta.invert);
+    const unit = meta.max === 52 ? ' hf' : '/10';
+    const sub  = val <= 3 ? (meta.invert ? 'Düşük' : 'Az') : val >= 7 ? (meta.invert ? 'Yüksek' : 'Güçlü') : 'Orta';
+    const card = document.createElement('div');
+    card.className = 'mc fadein';
+    card.innerHTML = `<div class="mc-lbl">${meta.label}</div><div class="mc-val" style="color:${col}">${val}${unit}</div><div class="mc-bar"><div class="mc-fill" id="mf-${key}" style="background:${col}"></div></div><div class="mc-sub">${sub}</div>`;
+    grid.appendChild(card);
+    setTimeout(() => { const f = $('mf-' + key); if (f) f.style.width = pct + '%'; }, 80);
+  }
+}
+
+// ── REPORT ────────────────────────────────────────────────────
+function renderReport(res) {
+  const tags = $('report-tags'); tags.innerHTML = '';
+  const tag = (t, cls) => `<span class="tag ${cls}">${t}</span>`;
+  if (res.question_type)    tags.innerHTML += tag(res.question_type, 't-bl');
+  if (res.consensus_status) {
+    const cls = res.consensus_status.includes('Full') ? 't-gr' : res.consensus_status.includes('Deep') ? 't-re' : 't-ye';
+    tags.innerHTML += tag(res.consensus_status, cls);
+  }
+  if (res.chosen_format) tags.innerHTML += tag(res.chosen_format.slice(0, 64), 't-mu');
+  renderMetrics(res.metrics);
+  const body = $('report-body');
+  if (res.report) body.innerHTML = typeof marked !== 'undefined' ? marked.parse(res.report) : res.report.replace(/\n/g,'<br>');
+  show('s-report');
+  setTimeout(() => $('s-report').scrollIntoView({ behavior:'smooth', block:'start' }), 300);
+}
+
+// ── EVENT HANDLER ─────────────────────────────────────────────
+function handle(ev) {
+  switch (ev.type) {
+    case 'stage':
+      if (ev.stage) activateStage(ev.stage);
+      if (ev.message) $('pmsg').textContent = ev.message;
+      break;
+
+    case 'ego_check_complete':
+      activateStage('ego_check');
+      buildCouncil();
+      break;
+
+    case 'debate_round_start':
+      currentRound = ev.round;
+      activateStage('debate_' + ev.round);
+      $('pmsg').textContent = `Tur ${ev.round} / ${ev.total} — 10 üye analiz ediyor…`;
+      Object.keys(AGENTS).forEach(k => agentRun(k));
+      break;
+
+    case 'agent_response':
+      agentDone(ev.agent, currentRound, ev.response);
+      break;
+
+    case 'chair_challenges':
+      $('pmsg').textContent = `Başkan Tur ${ev.round} sonrası sorular hazırlıyor…`;
+      if (ev.challenges) Object.entries(ev.challenges).forEach(([k,q]) => agentChallenge(k, ev.round, q));
+      break;
+
+    case 'synthesis_start':
+      activateStage('synthesis');
+      $('pmsg').textContent = 'Başkan nihai raporu yazıyor…';
+      break;
+
+    case 'complete':
+      allStagesDone();
+      setStatus('Tamamlandı', 'done');
+      $('pmsg').textContent = 'Analiz tamamlandı.';
+      $('sbtn').disabled = false;
+      renderReport(ev.result);
+      break;
+
+    case 'error':
+      setStatus('Hata', '');
+      $('errmsg').textContent = ev.message || 'Bilinmeyen hata.';
+      show('s-err');
+      $('sbtn').disabled = false;
+      break;
+  }
+}
+
+// ── MAIN ──────────────────────────────────────────────────────
+async function go() {
+  const text = $('q').value.trim();
+  if (!text) { $('q').focus(); return; }
+
+  // reset UI
+  ['s-report','s-err'].forEach(hide);
+  hide('s-debate-hd');
+  $('s-debate-body').innerHTML = '';
+  hide('sb-agents');
+  show('sb-pipe');
+  hide('s-welcome');
+  $('sbtn').disabled = true;
+  setStatus('Başlatılıyor…', 'run');
+  activateStage('init');
+  $('pmsg').textContent = 'Girdiler işleniyor…';
+  currentRound = 0;
+  selectedAgent = null;
+
+  let jobId;
+  try {
+    const r = await fetch('/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text }) });
+    const d = await r.json();
+    if (!d.job_id) throw new Error(d.detail || 'Sunucu hatası');
+    jobId = d.job_id;
+  } catch(e) {
+    $('errmsg').textContent = 'Sunucuya bağlanılamadı: ' + e.message;
+    show('s-err'); $('sbtn').disabled = false; setStatus('Hata', ''); return;
+  }
+
+  const es = new EventSource(`/stream/${jobId}`);
+  es.onmessage = e => {
+    try {
+      const ev = JSON.parse(e.data);
+      handle(ev);
+      if (ev.type === 'complete' || ev.type === 'error') es.close();
+    } catch(err) { console.error('SSE parse', err); }
+  };
+  es.onerror = () => { es.close(); $('sbtn').disabled = false; setStatus('Bağlantı kesildi', ''); };
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') go();
+});
+</script>
+</body>
+</html>
